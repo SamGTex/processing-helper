@@ -13,10 +13,10 @@ class I3Vectorize(icetray.I3ConditionalModule):
     '''
     def __init__(self, context):
         super(I3Vectorize, self).__init__(context)
-        self.AddParameter("Input",  "Name of the input object",                    "")
+        self.AddParameter("Input",  "Name of the input object","")
         self.AddParameter("Func",   "Optional function to apply on input values",  lambda x: x)
         self.AddParameter("Vector", "Corresponding vector object to match length", "")
-        self.AddParameter("Output", "Name of the output object",                   "")
+        self.AddParameter("Output", "Name of the output object","")
         self.AddOutBox("OutBox")
 
     def Configure(self):
