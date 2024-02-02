@@ -1,4 +1,0 @@
-ic3_labels
-click
-pyyaml
-numpy
