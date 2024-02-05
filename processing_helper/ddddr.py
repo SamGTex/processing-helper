@@ -2,6 +2,7 @@ from icecube import icetray
 from icecube import dataclasses
 from icecube import ddddr
 from icecube import MuonGun
+from icecube import lilliput
 
 import numpy as np
 
