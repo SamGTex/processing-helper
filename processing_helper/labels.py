@@ -15,7 +15,7 @@ class labels_on_cleanedpulses(icetray.I3ConditionalModule):
     #    self.qcut = self.GetParameter("qcut")
 
     def Physics(self, frame):
-        if frame['I3EventHeader'].sub_event_stream == "InIceSplit":
+        if (frame['I3EventHeader'].sub_event_stream == "InIceSplit") & (frame.Has('CleanedMuonPulses')):
             #print(frame['InIcePulses'])
             DomPulses = dataclasses.I3RecoPulseSeriesMap.from_frame(frame,'CleanedMuonPulses')
             charges = []

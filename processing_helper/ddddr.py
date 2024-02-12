@@ -152,7 +152,6 @@ def MuonReco(tray, name,
             frame[prefix+'dXbinned'] = dataclasses.I3VectorDouble(frame[slant] - np.amin(frame[slant]))
         return True
 
-
     tray.Add('I3MuonEnergy', 'GFU_SplineMPE_DDDDR_150',
             BinWidth       = 50.,
             InputPulses    = pulses,
