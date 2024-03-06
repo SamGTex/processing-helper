@@ -58,16 +58,18 @@ class ddddr_labels(icetray.I3ConditionalModule):
     def __init__(self, context):
         icetray.I3ConditionalModule.__init__(self, context)
         self.AddParameter("percentile", "percentile to calculate the first/last x% of the track", 0.1)
+        self.AddParameter("splineMPE_name", "Name of the splineMPE", "OnlineL2_SplineMPE")
 
     def Configure(self):
         self.percentile = self.GetParameter("percentile")
+        self.splineMPE_name = self.GetParameter("splineMPE_name")
 
     def Physics(self, frame):
         if frame['I3EventHeader'].sub_event_stream == "InIceSplit":
             
-            dE_dX = 'OnlineL2_SplineMPE_DDDDR_150_dEdX'
-            eloss = 'OnlineL2_SplineMPE_DDDDR_150_CascadeEnergyLosses'
-            domQ = 'OnlineL2_SplineMPE_DDDDR_150_CascadeDomCharges'
+            dE_dX = f'{self.splineMPE_name}_DDDDR_150_dEdX'
+            eloss = f'{self.splineMPE_name}_DDDDR_150_CascadeEnergyLosses'
+            domQ = f'{self.splineMPE_name}_DDDDR_150_CascadeDomCharges'
 
             # drop frame
             if not frame.Has(dE_dX) and not frame.Has(eloss) and not frame.Has(domQ):
@@ -140,17 +142,18 @@ class ddddr_labels(icetray.I3ConditionalModule):
 @icetray.traysegment
 def MuonReco(tray, name,
         pulses = 'CleanedMuonPulses',
+        splineMPE_name = 'OnlineL2_SplineMPE',
         If = lambda f: True):
-
-    
-    splineMPE_name = 'OnlineL2_SplineMPE'
-
     def ModifyDDDDROutput(frame, prefix):
         # adjust the slant such that the first bin is always at zero
         slant = prefix+'Slantbinned'
         if slant in frame:
             frame[prefix+'dXbinned'] = dataclasses.I3VectorDouble(frame[slant] - np.amin(frame[slant]))
         return True
+
+    print('MuonReco...')
+    print('Use', splineMPE_name)
+    print('GFU_SplineMPE_DDDDR_150...')
 
     tray.Add('I3MuonEnergy', 'GFU_SplineMPE_DDDDR_150',
             BinWidth       = 50.,
@@ -161,11 +164,13 @@ def MuonReco(tray, name,
             Prefix         = splineMPE_name+'_DDDDR_150_',
             SaveDomResults = True)#,
             #If = lambda f: If(f) and EventHasBasicReco(f) and EventIsDowngoing(f) )
-	
+    
+	#print('GFU_FixDDDDR_DDDDR_150')
+
     tray.Add(ModifyDDDDROutput, 'GFU_FixDDDDR_DDDDR_150',
             prefix = splineMPE_name+'_DDDDR_150_')#,
              #If = lambda f: If(f) and EventHasBasicReco(f) and EventIsDowngoing(f) )
-	
+
     tray.Add(I3Vectorize, 'GFU_SplineMPE_DDDDR_150_vecE',
             Input  = splineMPE_name+'_MuEx',
             Func   = lambda x: np.log10(x.energy),

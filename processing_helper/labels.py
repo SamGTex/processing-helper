@@ -9,15 +9,16 @@ import numpy as np
 class labels_on_cleanedpulses(icetray.I3ConditionalModule):
     def __init__(self, context):
         icetray.I3ConditionalModule.__init__(self, context)
+        self.AddParameter("pulses", "Name of the pulses", "CleanedMuonPulses")
         #super(labels_on_cleanedpulses, self).__init__(context)
 
-    #def Configure(self):
-    #    self.qcut = self.GetParameter("qcut")
+    def Configure(self):
+        self.pulses = self.GetParameter("pulses")
 
     def Physics(self, frame):
-        if (frame['I3EventHeader'].sub_event_stream == "InIceSplit") & (frame.Has('CleanedMuonPulses')):
+        if (frame['I3EventHeader'].sub_event_stream == "InIceSplit") & (frame.Has(self.pulses)):
             #print(frame['InIcePulses'])
-            DomPulses = dataclasses.I3RecoPulseSeriesMap.from_frame(frame,'CleanedMuonPulses')
+            DomPulses = dataclasses.I3RecoPulseSeriesMap.from_frame(frame,self.pulses)
             charges = []
             ndoms = 0
             for omkey, pulses in DomPulses:

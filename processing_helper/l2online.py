@@ -50,36 +50,37 @@ def OnlineL2Filter(tray, name, pulses=filter_globals.CleanedMuonPulses,
 
 
     def DoBasicReco(frame):
+        return True
         '''
         Which events should get the basic OnlineL2 recos? (e.g. SPE2it, MPE)
         '''
-        passed_Muon = True
-        if frame.Has(filter_globals.MuonFilter):
-            passed_Muon = frame[filter_globals.MuonFilter].value
+        if frame.Has('FilterMask'):
+            _filter = frame['FilterMask'].get(filter_globals.HighQFilter)
+            if _filter.condition_passed:
+                return True
+            else:
+                return False
+        
+        # filter not need because qfilter is already applied
+    
+        #passed_Muon = False
+        #_filter = frame['FilterMask'].get(filter_globals.MuonFilter)
+        #if _filter.condition_passed:
+        #    passed_Muon = True
+        #    print('MuonFilter passed')
 
-        return passed_Muon
-
-
-    def DoCut(frame):
-        '''
-        Which events are the input to the OnlineL2 filter?
-        '''
-        if frame.Has(filter_globals.MuonFilter):
-            return frame[filter_globals.MuonFilter].value
-        return False
+        #return passed_Muon
 
 
     def DoAdvancedReco(frame):
-        '''
-        Which events should get the avanced OnlineL2 recos? (e.g. SplineMPE)
-        '''
-        passed_L2 = False
-        if frame.Has(filter_globals.OnlineL2Filter):
-            passed_L2 = frame[filter_globals.OnlineL2Filter].value      
-
-        # TODO: Add EHE or HighQ Filter as well?
-
-        return passed_L2 and EventHasGoodTrack(frame)
+        return True
+        # same as basic reco
+        if frame.Has('FilterMask'):
+            _filter = frame['FilterMask'].get(filter_globals.HighQFilter)
+            if _filter.condition_passed:
+                return True
+            else:
+                return False
 
 
     def FindBestTrack(frame, tracks, output):
@@ -328,6 +329,15 @@ def OnlineL2Filter(tray, name, pulses=filter_globals.CleanedMuonPulses,
     ############################################
     # Run energy estimators on SplineMPE track #
     ############################################
+    def PutBadDomListInFrame(frame):
+        if forceOnlineL2BadDOMList is None:
+            frame[name+'_BadDomList'] = dataclasses.I3VectorOMKey(filter_globals.online_bad_doms)
+        else:
+            # If requested, store a copy of the forced onlineL2 bad DOM list. This is used for pass2 
+            # where the hard-coded bad DOM list is not applicable to old data. We made the choice 
+            # to re-use the L2 bad DOM list we have access to in pass2 for this instead. 
+            frame[name+'_BadDomList'] = copy.copy(frame[forceOnlineL2BadDOMList])
+    tray.AddModule(PutBadDomListInFrame, name+"_BadDOMsToFrame",)
 
     # find spline table service name
     splineServiceName = None
@@ -436,6 +446,6 @@ def OnlineL2Filter(tray, name, pulses=filter_globals.CleanedMuonPulses,
     ]
 
     # remove leftover reconstructions for events that did not pass OnlineL2
-#    tray.Add('Delete', name+'_Delete_Leftovers',
-#            Keys = filter_globals.onlinel2filter_keeps,
-#            If = lambda f: If(f) and (not DoAdvancedReco(f)) )
+    #tray.Add('Delete', name+'_Delete_Leftovers',
+    #        Keys = filter_globals.onlinel2filter_keeps,
+    #        If = lambda f: If(f) and (not DoAdvancedReco(f)) )
