@@ -6,10 +6,8 @@ from icecube import phys_services
 from I3Tray import I3Units
 from ic3_labels.labels.base_module import MCLabelsBase
 
-#from ic3_labels.labels.utils.high_level import get_muon_bundle_information
 from ic3_labels.labels.utils import muon as mu_utils
 from ic3_labels.labels.utils import detector
-
 import numpy as np
 
 class EnergyLoss(icetray.I3ConditionalModule):
@@ -104,3 +102,5 @@ class MergeTrees(icetray.I3ConditionalModule):#icetray.I3ConditionalModule
         _tree.merge(frame[self._tree2])
         #MuonGun.MergeMCTree(frame['I3MCTree'], frame[self._background_tree_name])
         return _tree
+
+

@@ -4,3 +4,4 @@ from .ddddr import MuonReco
 from .ddddr import ddddr_labels
 from .mc import MergeTrees
 from .mc import EnergyLoss
+from .filter import filter_detectorhits
